@@ -6,11 +6,27 @@
 /*   By: smargaro <smargaro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 00:43:23 by smargaro          #+#    #+#             */
-/*   Updated: 2026/01/15 18:27:59 by smargaro         ###   ########.fr       */
+/*   Updated: 2026/01/18 21:01:31 by smargaro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <stdio.h>
+
+void	ft_bzero(void *s, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < n)
+	{
+		((char *)s)[i] = '\0';
+		i++;
+	}
+}
 
 char	*ft_strchr(const char *s, int c)
 {
@@ -51,7 +67,7 @@ void	*ft_calloc(size_t count, size_t size)
 
 	if (!count || !size)
 		return (malloc(1));
-	if (size >= SIZE_MAX / count)
+	if (size >=  SIZE_MAX / count)
 		return (NULL);
 	r = malloc(count * size);
 	if (!r)
@@ -93,7 +109,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (ns);
 }
 
-void	salvataggio(char *memory, char temp)
+void	salvataggio(char *memory, char *temp)
 {
 	int a;
 	int b;
@@ -101,16 +117,15 @@ void	salvataggio(char *memory, char temp)
 
 	a = ft_strlen(memory);
 	b = ft_strlen(temp);
-	provvisorio = ft_calloc ((a+b) + 1, sizeof(char));
-	if (!provvisorio)
-		return (NULL);
-	provvisorio = (memory, temp);
+	provvisorio = ft_strjoin (memory, temp);
 	free (memory);
-	memory = provvisorio;
+	memory = ft_calloc (ft_strlen (provvisorio)+1,1);
+	printf("test len %ld\n", a );
+	ft_memcpy (memory, provvisorio, ft_strlen(provvisorio)+1);
 	free (provvisorio);
 }
 
-char *retline (char *memory,char *posizione)
+char	*retline (char *memory, char *posizione)
 {
 	char	*r;
 	int		i;
@@ -118,14 +133,17 @@ char *retline (char *memory,char *posizione)
 	
 	i = 0;
 	j = 0;
-	while (memory[i] != '/n')
+	printf("test1%s\n", memory);
+	while (memory[i] != '\n')
 		i++;
 	r = ft_calloc (i + 1, sizeof(char));
-	while (posizione[j])
+	while (j < i)
 	{
-		r[j] = posizione [j];
+		r[j] = memory[j];
 		j++;
 	}
+	salvataggio (memory, posizione);
+		printf("testretl %s\n", r);
 	return (r);
 }
 
@@ -140,18 +158,36 @@ char	*get_next_line(int fd)
 	if (!memory)
 		memory = (char *)malloc(1);
 	while (fine_lettura = read(fd, temp, 3))
-	{
+	{	
 		temp[fine_lettura] = '\0';
 		salvataggio (memory, temp);
-			if (posizione=ft_strchr(memory, '\n'))
+			if (posizione = ft_strchr(memory, '\n'))
 			{
 				r = retline(memory, posizione); // posso creare funzione che crea variabile r, salva avanzo, ritorna r
+				printf("pos %s\n", r);
 				return (r);
 			}
 	}
 	if (!memory)
 		return (NULL);
-	else // non ci sono \n in memoria e non c'e altro da leggere
-		fai funzione copia di memory non static, poi libera memory;
-		return (copia di memory);
+	//else // non ci sono \n in memoria e non c'e altro da leggere
+	//	fai funzione copia di memory non static, poi libera memory;
+	//	return (copia di memory);
+}
+
+
+int main(void)
+{
+    int   fd;
+    char *line;
+	char *line2;
+
+    fd = open("text.txt", O_RDONLY);
+    line = get_next_line(fd);
+    printf("ex1  %s\n", line);   
+	line2 = get_next_line(fd);
+    printf("ex2  %s\n", line);   
+	
+
+    return (0);
 }
